@@ -9,17 +9,28 @@ if "token" not in st.session_state:
     st.session_state.token = None
 
 if st.session_state.token is None:
-    st.subheader("Login")
+    auth_mode = st.radio("Choose action", ["Login", "Register"], horizontal=True)
     email = st.text_input("Email")
     password = st.text_input("Password", type="password")
 
-    if st.button("Login"):
-        response = requests.post(f"{API_URL}/login", json={"email": email, "password": password})
-        if response.status_code == 200:
-            st.session_state.token = response.json()["access_token"]
-            st.rerun()
-        else:
-            st.error("Invalid credentials")
+    if auth_mode == "Register":
+        full_name = st.text_input("Full Name")
+
+    if auth_mode == "Login":
+        if st.button("Login"):
+            response = requests.post(f"{API_URL}/login", json={"email": email, "password": password})
+            if response.status_code == 200:
+                st.session_state.token = response.json()["access_token"]
+                st.rerun()
+            else:
+                st.error("Invalid credentials")
+    else:
+        if st.button("Register"):
+            response = requests.post(f"{API_URL}/register", json={"email": email, "password": password, "full_name": full_name})
+            if response.status_code in (200, 201):
+                st.success("Account created! Now switch to Login and sign in.")
+            else:
+                st.error(f"Registration failed: {response.text}")
 
 else:
     headers = {"Authorization": f"Bearer {st.session_state.token}"}
