@@ -46,3 +46,13 @@ class JobMatch(Base):
     matched_skills = Column(Text)
     missing_skills = Column(Text)
     created_at = Column(DateTime, default=datetime.utcnow)
+
+class Application(Base):
+    __tablename__ = "applications"
+
+    id = Column(Integer, primary_key=True, index=True)
+    user_id = Column(Integer, ForeignKey("users.id"))
+    job_id = Column(Integer, ForeignKey("jobs.id"))
+    cover_letter = Column(Text)
+    status = Column(String(50), default="pending")
+    created_at = Column(DateTime, default=datetime.utcnow)

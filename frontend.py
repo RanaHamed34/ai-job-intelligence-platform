@@ -39,7 +39,7 @@ else:
         st.session_state.token = None
         st.rerun()
 
-    tab1, tab2, tab3 = st.tabs(["Job Search", "Upload CV", "Match Jobs"])
+    tab1, tab2, tab3,tab4 = st.tabs(["Job Search", "Upload CV", "Match Jobs","Auto-Reply"])
 
     with tab1:
         st.subheader("Search Jobs")
@@ -83,3 +83,27 @@ else:
                 st.write("**Missing Skills:**", result["missing_skills"])
             else:
                 st.error(f"Error: {response.text}")
+
+    with tab4:
+        st.subheader("Auto-Apply Agent")
+        job_id = st.number_input("Job ID to apply for", min_value=1, step=1, key="apply_job_id")
+
+        if st.button("Generate Application"):
+            response = requests.post(f"{API_URL}/generate-application/{job_id}", headers=headers)
+            if response.status_code == 200:
+                st.success("Cover letter generated!")
+            else:
+                st.error(f"Error: {response.text}")
+
+        st.divider()
+        st.write("**Your Applications**")
+
+        if st.button("Refresh Applications"):
+            apps = requests.get(f"{API_URL}/applications", headers=headers).json()
+            for app in apps:
+                with st.expander(f"Job ID {app['job_id']} — {app['status']}"):
+                    st.write(app["cover_letter"])
+                    if app["status"] == "pending":
+                        if st.button("Approve", key=f"approve_{app['id']}"):
+                            requests.post(f"{API_URL}/applications/{app['id']}/approve", headers=headers)
+                            st.rerun()
