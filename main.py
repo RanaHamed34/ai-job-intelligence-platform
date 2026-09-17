@@ -277,6 +277,10 @@ Write a professional cover letter (3-4 short paragraphs) that connects the candi
 
     return new_application
 
+class NaturalSearchRequest(BaseModel):
+    query: str
+    n_results: int = 5
+    
 @app.post("/search-natural")
 def search_natural(request: NaturalSearchRequest, current_user_id: int = Depends(get_current_user), db: Session = Depends(get_db)):
     query = request.query
